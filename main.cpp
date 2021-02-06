@@ -13,6 +13,8 @@ using namespace std;
 #define RIGHT 'd'
 #define HARDDROP 's'
 #define HOLD 'w'
+#define TURNL 'q'
+#define TURNR 'e'
 
 
 #define color(a) SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), a)
@@ -147,27 +149,27 @@ int shape[7][4][4][4] = {
 	},
 	{
 		{
-			{0,0,1,1},
 			{0,1,1,0},
+			{1,1,0,0},
 			{0,0,0,0},
+			{0,0,0,0}
+		},
+		{
+			{1,0,0,0},
+			{1,1,0,0},
+			{0,1,0,0},
+			{0,0,0,0}
+		},
+		{
+			{0,0,0,0},
+			{0,1,1,0},
+			{1,1,0,0},
 			{0,0,0,0}
 		},
 		{
 			{0,1,0,0},
 			{0,1,1,0},
 			{0,0,1,0},
-			{0,0,0,0}
-		},
-		{
-			{0,0,0,0},
-			{0,0,1,1},
-			{0,1,1,0},
-			{0,0,0,0}
-		},
-		{
-			{0,0,1,0},
-			{0,0,1,1},
-			{0,0,0,1},
 			{0,0,0,0}
 		}
 	},
@@ -251,6 +253,8 @@ int main() {
 		case RIGHT:
 		case HARDDROP:
 		case HOLD:
+		case TURNL:
+		case TURNR:
 			keyget(key);
 			key = 0;
 		}
@@ -303,6 +307,14 @@ void keyget(int key) {
 		if (flag == 1) y--;
 		if (flag == 0) gettime = clock();
 	}
+	if (key == TURNL) {
+		s++;
+		if (s >= 4) s = 0;
+	}
+	if (key == TURNR) {
+		s--;
+		if (s < 0) s = 3;
+	}
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (shape[block_now][s][i][j] == 1) {
@@ -344,7 +356,7 @@ void choose_block() {
 	s = 0;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			if (shape[next_block][0][i][j] == 1) {
+			if (shape[next_block][s][i][j] == 1) {
 				map[x + i][y + j] = next_block + 2;
 			}
 		}
@@ -353,7 +365,7 @@ void choose_block() {
 	next_block = rand() % 6;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			if (shape[next_block][0][i][j] == 1) {
+			if (shape[next_block][s][i][j] == 1) {
 				gotoxy(i + 1, j + 1);
 				color(next_block + 2); printf("■");
 				color(7);
@@ -450,10 +462,12 @@ void erase(int line) {
 	for (int i = line; i > 0; i--) {
 		for (int j = 0; j < 10; j++) {
 			block[j][i] = block[j][i - 1];
+			map[j][i] = map[j][i - 1];
 		}
 		block_count[i] = block_count[i - 1];
 	}
 	for (int j = 0; j < 10; j++) {
 		block[j][0] = 0;
+		map[j][0] = 0;
 	}
 }
